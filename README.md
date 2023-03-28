@@ -1,5 +1,3 @@
-![Advanced React Patterns Ultrasimplified](assets/hero@3x.png)
-
 **Welcome to Advanced React Patterns Ultrasimplified!**
 
 Here, you'll be walked through advanced React Component Patterns in an intuitive fashion that models your day-to-day job as a Software Engineer - Pull requests!
