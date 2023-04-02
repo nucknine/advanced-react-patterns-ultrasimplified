@@ -1,158 +1,47 @@
-import React, { Component, useState } from "react";
-import mojs from "mo-js";
-import { generateRandomNumber } from "../utils/generateRandomNumber";
+import * as React from "react";
+import { useState } from "react";
 import styles from "./index.css";
 
-/** ====================================
- *          🔰HOC
-Higher Order Component for Animation
-==================================== **/
-const withClapAnimation = (WrappedComponent) => {
-  class WithClapAnimation extends Component {
-    animationTimeline = new mojs.Timeline();
-    state = {
-      animationTimeline: this.animationTimeline,
-    };
-
-    componentDidMount() {
-      const tlDuration = 300;
-
-      const triangleBurst = new mojs.Burst({
-        parent: "#clap",
-        radius: { 50: 95 },
-        count: 5,
-        angle: 30,
-        children: {
-          shape: "polygon",
-          radius: { 6: 0 },
-          scale: 1,
-          stroke: "rgba(211,84,0 ,0.5)",
-          strokeWidth: 2,
-          angle: 210,
-          delay: 30,
-          speed: 0.2,
-          easing: mojs.easing.bezier(0.1, 1, 0.3, 1),
-          duration: tlDuration,
-        },
-      });
-
-      const circleBurst = new mojs.Burst({
-        parent: "#clap",
-        radius: { 50: 75 },
-        angle: 25,
-        duration: tlDuration,
-        children: {
-          shape: "circle",
-          fill: "rgba(149,165,166 ,0.5)",
-          delay: 30,
-          speed: 0.2,
-          radius: { 3: 0 },
-          easing: mojs.easing.bezier(0.1, 1, 0.3, 1),
-        },
-      });
-
-      const countAnimation = new mojs.Html({
-        el: "#clapCount",
-        isShowStart: false,
-        isShowEnd: true,
-        y: { 0: -30 },
-        opacity: { 0: 1 },
-        duration: tlDuration,
-      }).then({
-        opacity: { 1: 0 },
-        y: -80,
-        delay: tlDuration / 2,
-      });
-
-      const countTotalAnimation = new mojs.Html({
-        el: "#clapCountTotal",
-        isShowStart: false,
-        isShowEnd: true,
-        opacity: { 0: 1 },
-        delay: (3 * tlDuration) / 2,
-        duration: tlDuration,
-        y: { 0: -3 },
-      });
-
-      const scaleButton = new mojs.Html({
-        el: "#clap",
-        duration: tlDuration,
-        scale: { 1.3: 1 },
-        easing: mojs.easing.out,
-      });
-
-      const clap = document.getElementById("clap");
-      clap.style.transform = "scale(1, 1)";
-
-      const newAnimationTimeline = this.animationTimeline.add([
-        countAnimation,
-        countTotalAnimation,
-        scaleButton,
-        circleBurst,
-        triangleBurst,
-      ]);
-      this.setState({ animationTimeline: newAnimationTimeline });
-    }
-
-    render() {
-      return (
-        <WrappedComponent
-          animationTimeline={this.state.animationTimeline}
-          {...this.props}
-        />
-      );
-    }
-  }
-
-  WithClapAnimation.displayName = `WithClapAnimation(${getDisplayName(
-    WrappedComponent
-  )})`;
-
-  return WithClapAnimation;
-};
-
-function getDisplayName(WrappedComponent) {
-  return WrappedComponent.displayName || WrappedComponent.name || "Component";
-}
-
-/** ====================================
- *      🔰 MediumClap
-==================================== **/
 const initialState = {
   count: 0,
-  countTotal: generateRandomNumber(500, 10000),
+  countTotal: Math.floor(Math.random() * (1000 - 100 + 1)) + 100,
   isClicked: false,
 };
 
-const MediumClap = ({ animationTimeline }) => {
-  const MAXIMUM_USER_CLAP = 50;
+const MediumClap = () => {
   const [clapState, setClapState] = useState(initialState);
   const { count, countTotal, isClicked } = clapState;
 
-  const handleClapClick = () => {
-    // 👉 prop from HOC
-    animationTimeline.replay();
-
-    setClapState({
-      count: Math.min(count + 1, MAXIMUM_USER_CLAP),
-      countTotal: count < MAXIMUM_USER_CLAP ? countTotal + 1 : countTotal,
-      isClicked: true,
-    });
+  // const [count, setCount] = useState(0);
+  // const [isClicked, setIsClicked] = useState(false);
+  // const [countTotal, setCountTotal] = useState(
+  //   Math.floor(Math.random() * (1000 - 100 + 1)) + 100
+  // );
+  const onClapClick = () => {
+    // setIsClicked(true);
+    if (count < 10) {
+      setClapState((state) => ({
+        ...state,
+        isClicked: true,
+        count: state.count + 1,
+        countTotal: state.countTotal + 1,
+      }));
+      // setCount((v) => v + 1);
+      // setCountTotal((v) => v + 1);
+    }
   };
-
   return (
-    <button id="clap" className={styles.clap} onClick={handleClapClick}>
+    <button className={styles.clap} onClick={onClapClick}>
       <ClapIcon isClicked={isClicked} />
       <ClapCount count={count} />
-      <CountTotal countTotal={countTotal} />
+      <ClapCountTotal countTotal={countTotal} />
     </button>
   );
 };
 
-/** ====================================
- *      🔰SubComponents
-Smaller Component used by <MediumClap />
-==================================== **/
+/**
+ * subcomponents
+ */
 
 const ClapIcon = ({ isClicked }) => {
   return (
@@ -169,30 +58,13 @@ const ClapIcon = ({ isClicked }) => {
     </span>
   );
 };
+
 const ClapCount = ({ count }) => {
-  return (
-    <span id="clapCount" className={styles.count}>
-      +{count}
-    </span>
-  );
-};
-const CountTotal = ({ countTotal }) => {
-  return (
-    <span id="clapCountTotal" className={styles.total}>
-      {countTotal}
-    </span>
-  );
+  return <span className={styles.count}>{`+ ${count}`}</span>;
 };
 
-/** ====================================
-    *        🔰USAGE
-    Below's how a potential user
-    may consume the component API
-==================================== **/
-
-const Usage = () => {
-  const AnimatedMediumClap = withClapAnimation(MediumClap);
-  return <AnimatedMediumClap />;
+const ClapCountTotal = ({ countTotal }) => {
+  return <span className={styles.total}>{countTotal}</span>;
 };
 
-export default Usage;
+export default MediumClap;
