@@ -28,6 +28,8 @@ const MediumClap = () => {
       }));
       // first
       // second + third
+      // separate
+      // separate 2
       // setCount((v) => v + 1);
       // setCountTotal((v) => v + 1);
     }
