@@ -26,6 +26,8 @@ const MediumClap = () => {
         count: state.count + 1,
         countTotal: state.countTotal + 1,
       }));
+      // first
+      // second + third
       // setCount((v) => v + 1);
       // setCountTotal((v) => v + 1);
     }
