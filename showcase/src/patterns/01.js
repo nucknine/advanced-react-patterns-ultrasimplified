@@ -2,14 +2,30 @@ import * as React from "react";
 import { useState } from "react";
 import styles from "./index.css";
 
+const MAX_USER_CLAP = 22;
+
 const initialState = {
   count: 0,
   countTotal: Math.floor(Math.random() * (1000 - 100 + 1)) + 100,
   isClicked: false,
 };
 
+/**
+ *  HOC
+ */
+
+const withClapAnimation = (WrappedComponent) => {
+  class WithClapAnimation extends React.Component {
+    render() {
+      console.log(">  | render | this.props", this.props);
+      return <WrappedComponent {...this.props} />;
+    }
+  }
+  return WithClapAnimation;
+};
+
 const MediumClap = () => {
-  const [clapState, setClapState] = useState(initialState);
+  const [clapState, setClapState] = useState(() => initialState);
   const { count, countTotal, isClicked } = clapState;
 
   // const [count, setCount] = useState(0);
@@ -18,21 +34,15 @@ const MediumClap = () => {
   //   Math.floor(Math.random() * (1000 - 100 + 1)) + 100
   // );
   const onClapClick = () => {
-    // setIsClicked(true);
-    if (count < 10) {
-      setClapState((state) => ({
-        ...state,
-        isClicked: true,
-        count: state.count + 1,
-        countTotal: state.countTotal + 1,
-      }));
-      // first
-      // second + third
-      // separate
-      // separate 2
-      // setCount((v) => v + 1);
-      // setCountTotal((v) => v + 1);
-    }
+    setClapState((prev) =>
+      prev.count < MAX_USER_CLAP
+        ? {
+            isClicked: true,
+            count: prev.count + 1,
+            countTotal: prev.countTotal + 1,
+          }
+        : prev
+    );
   };
   return (
     <button className={styles.clap} onClick={onClapClick}>
@@ -71,4 +81,13 @@ const ClapCountTotal = ({ countTotal }) => {
   return <span className={styles.total}>{countTotal}</span>;
 };
 
-export default MediumClap;
+/**
+ * Usage
+ */
+
+const Usage = () => {
+  const AnimatedMediumClap = withClapAnimation(MediumClap);
+  return <AnimatedMediumClap />;
+};
+
+export default Usage;
